@@ -1,0 +1,39 @@
+/* src/components/CalendarStyles.css */
+.react-calendar {
+    background: #666664; /* Fondo oscuro para el calendario */
+    border: none; /* Eliminar el borde predeterminado */
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3); /* Sombra sutil */
+    font-family:'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    padding:3px;
+  }
+  
+  .react-calendar__tile {
+    background: #333333; /* Fondo de las fechas */
+    color: #ffffff; /* Color de texto de las fechas */
+    font-size: medium;
+   
+  }
+  
+  .react-calendar__tile--active {
+    background: #ebd50f; /* Color de fondo para la fecha activa */
+    color: #ffffff; /* Color del texto para la fecha activa */
+  }
+  
+  .react-calendar__tile--hasActive {
+    background: #cfbb01; /* Color de fondo para fechas con actividad */
+  }
+  
+  .react-calendar__navigation button {
+    background: #333333; /* Fondo de los botones de navegación */
+    color: #ffffff; /* Color del texto de los botones de navegación */
+  }
+  
+  .react-calendar__navigation button:hover {
+    background: #444444; /* Fondo al pasar el ratón sobre los botones de navegación */
+  }
+  
+  /* Cambiar el color de los días deshabilitados */
+  .react-calendar__tile--disabled {
+    background: #333333; /* Color gris */
+    color: #333333; /* Texto gris */
+  }
