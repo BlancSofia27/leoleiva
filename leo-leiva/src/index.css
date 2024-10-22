@@ -3,8 +3,11 @@
 @tailwind utilities;
 
 
+
+
 body {
   background-color: #222324; /* Fondo negro */
   color: #ffffff; /* Texto blanco para contraste */
 }
+
 

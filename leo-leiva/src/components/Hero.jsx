@@ -4,7 +4,7 @@ import logo from '../assets/leoleiva.jpg';
 
 const Hero = () => {
   return (
-    <div className="relative flex flex-col items-center justify-center xl:h-[300px] xs:h-[250px]  bg-black">
+    <div className="relative flex flex-col items-center justify-center xl:h-[300px] xs:h-[250px]  bg-black w-full">
     
 
       {/* Contenedor para centrar logo y texto */}

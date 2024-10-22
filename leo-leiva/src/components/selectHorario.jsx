@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 
-const SelectHorario = ( onHorarioChange ) => {
-  const [horario, setHorario] = useState(null);
+const SelectHorario = ({ onHorarioChange }) => {
+  const [selectedHorario, setSelectedHorario] = useState(null);
 
   const horarios = [
     { id: 1, hora: '09:00' },
@@ -16,36 +16,28 @@ const SelectHorario = ( onHorarioChange ) => {
   ];
 
   const handleHorarioClick = (hora) => {
-    setHorario(hora);
-    console.log(onHorarioChange)
+    setSelectedHorario(hora);
     onHorarioChange(hora); // Enviar el valor seleccionado al componente padre
   };
 
   return (
     <div className="flex flex-col items-center mt-4">
       <h3 className="text-white mb-4">Horarios Disponibles</h3>
-      <div className="flex flex-wrap gap-4 justify-center">
+      <div className="flex flex-wrap gap-4 justify-center p-3">
         {horarios.map((horario) => (
           <button
             key={horario.id}
             onClick={() => handleHorarioClick(horario.hora)}
             className={`p-4 border rounded ${
-              horario === horario.hora ? 'bg-blue-500' : 'bg-zinc-700'
-            } text-white transition duration-300 ease-in-out transform hover:bg-leo hover:scale-105`}
+              selectedHorario === horario.hora ? 'bg-green-500' : 'bg-zinc-700'
+            } text-white transition duration-300 ease-in-out `}
           >
             {horario.hora}
           </button>
         ))}
       </div>
 
-      {horario && (
-        <button
-          onClick={() => console.log(`Confirmando horario: ${horario}`)}
-          className="mt-4 bg-green-500 text-white py-2 px-4 rounded"
-        >
-          Confirmar Horario
-        </button>
-      )}
+     
     </div>
   );
 };

@@ -1,145 +1,100 @@
-import { useState, useEffect } from 'react';
-import { obtenerListaDePrecios } from '../supabase/api'; // Función para obtener los precios desde Supabase
+import React, { useState } from 'react';
+import { Swiper, SwiperSlide } from 'swiper/react';
+import 'swiper/css';
+import 'swiper/css/pagination';
 
-const AdminPreciosTable = () => {
-  const [preciosTenis, setPreciosTenis] = useState([]);
-  const [preciosFutbol5, setPreciosFutbol5] = useState([]);
-  const [preciosFutbol6, setPreciosFutbol6] = useState([]);
-  const [preciosPaddle, setPreciosPaddle] = useState([]);
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState(null);
-  const [tablaIndex, setTablaIndex] = useState(0);
-  const [touchStart, setTouchStart] = useState(0);
-  const [touchEnd, setTouchEnd] = useState(0);
+// Lista de servicios de peluquería
+const servicios = [
+  {
+    nombre: 'Coloración',
+    subServicios: [
+      { nombre: 'Cambio de color', precio: 'DESDE $80.000' },
+      { nombre: 'Tono sobre tono', precio: 'DESDE $50.000' },
+      { nombre: 'Color sin amoníaco', precio: 'DESDE $65.000' },
+      { nombre: 'Color raíz', precio: 'DESDE $55.000' },
+      { nombre: 'Decoloración', precio: 'DESDE $80.000' },
+      { nombre: 'Reflejos con gorra/papel', precio: 'DESDE $80.000' },
+      { nombre: 'Balayage / Balayage ombré', precio: 'DESDE $80.000' },
+      { nombre: 'Mechas Papel', precio: 'DESDE $80.000' },
+    ],
+  },
+  {
+    nombre: 'Belleza Capilar',
+    subServicios: [
+      { nombre: 'Botox Capilar', precio: 'DESDE $50.000' },
+      { nombre: 'Hidratación', precio: 'DESDE $30.000' },
+      { nombre: 'Keratina', precio: 'DESDE $70.000' },
+    ],
+  },
+  {
+    nombre: 'Cortes',
+    subServicios: [
+      { nombre: 'Corte de Puntas', precio: 'DESDE $20.000' },
+      { nombre: 'Corte de Estilo', precio: 'DESDE $25.000' },
+      { nombre: 'Corte en Seco', precio: 'DESDE $30.000' },
+    ],
+  },
+  {
+    nombre: 'Peinados',
+    subServicios: [
+      { nombre: 'Peinado Casual', precio: 'DESDE $30.000' },
+      { nombre: 'Peinado Formal', precio: 'DESDE $40.000' },
+      { nombre: 'Trenzas', precio: 'DESDE $35.000' },
+    ],
+  },
+];
 
-  useEffect(() => {
-    const fetchPrecios = async () => {
-      setLoading(true);
-      setError(null);
-
-      try {
-        // Obtener precios para cada tipo de cancha
-        const tenisResult = await obtenerListaDePrecios('Tenis');
-        if (tenisResult.success) setPreciosTenis(tenisResult.data);
-
-        const futbol5Result = await obtenerListaDePrecios('Futbol 5');
-        if (futbol5Result.success) setPreciosFutbol5(futbol5Result.data);
-
-        const futbol6Result = await obtenerListaDePrecios('Futbol 6');
-        if (futbol6Result.success) setPreciosFutbol6(futbol6Result.data);
-
-        const paddleResult = await obtenerListaDePrecios('Paddle');
-        if (paddleResult.success) setPreciosPaddle(paddleResult.data);
-
-      } catch (err) {
-        setError('Error al obtener precios');
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchPrecios();
-  }, []);
-
-  const handleNext = () => {
-    setTablaIndex((prevIndex) => (prevIndex + 1) % 4); // Hay 4 tablas
-  };
-
-  const handlePrevious = () => {
-    setTablaIndex((prevIndex) => (prevIndex - 1 + 4) % 4); // Hay 4 tablas
-  };
-
-  const handleTouchStart = (e) => {
-    setTouchStart(e.targetTouches[0].clientX);
-  };
-
-  const handleTouchMove = (e) => {
-    setTouchEnd(e.targetTouches[0].clientX);
-  };
-
-  const handleTouchEnd = () => {
-    if (touchStart - touchEnd > 50) {
-      handleNext(); // Deslizó hacia la izquierda
-    }
-
-    if (touchStart - touchEnd < -50) {
-      handlePrevious(); // Deslizó hacia la derecha
-    }
-  };
-
-  const renderTable = (titulo, precios) => (
-    <div className="mt-8">
-      <h2 className="text-2xl font-bold text-white mb-4 text-center">{titulo}</h2>
-      {precios.length > 0 ? (
-        <table className="min-w-full bg-zinc-800 border rounded-lg overflow-hidden">
-          <thead>
-            <tr>
-              <th className="py-3 px-2 border-b bg-blue-600 text-white text-center">Día</th>
-              <th className="py-3 px-1 border-b bg-blue-600 text-white text-center">Horario</th>
-              <th className="py-3 px-4 border-b bg-blue-600 text-white text-center">Precio</th>
-              <th className="py-3 border-b bg-blue-600 text-white text-center"></th>
-            </tr>
-          </thead>
-          <tbody>
-            {precios.map((precio) => (
-              <tr key={`${precio.dia}-${precio.hora}`} className="hover:bg-gray-700">
-                <td className="py-2 px-4 text-center border-b text-white">{precio.dia}</td>
-                <td className="py-2 px-1 text-center border-b text-white">{precio.hora}</td>
-                <td className="py-2 px-2 text-center border-b text-white">${precio.precio}</td>
-                <td className="py-2 px-1 text-center border-b">
-                  <button className="bg-blue-500 text-white py-1 px-3 rounded-md hover:bg-blue-600 focus:outline-none">
-                    Editar
-                  </button>
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      ) : (
-        <p className="text-gray-300">No hay precios disponibles.</p>
-      )}
-    </div>
-  );
-
-  const tablas = [
-    { titulo: 'Precios Tenis', precios: preciosTenis },
-    { titulo: 'Precios Fútbol 5', precios: preciosFutbol5 },
-    { titulo: 'Precios Fútbol 6', precios: preciosFutbol6 },
-    { titulo: 'Precios Paddle', precios: preciosPaddle },
-  ];
+const ServiciosTable = () => {
+  const [hoveredRowIndex, setHoveredRowIndex] = useState(null); // Estado para manejar el índice de la fila en hover
 
   return (
-    <div className="px-2 shadow-xl rounded-lg">
-      <h1 className="text-3xl font-extrabold m-6 text-center text-white">Lista De Precios Vigentes</h1>
-
-      {loading ? (
-        <p className="text-gray-300">Cargando precios...</p>
-      ) : error ? (
-        <p className="text-red-500">{error}</p>
-      ) : (
-        <>
-          <div
-            className="flex justify-between items-center"
-            onTouchStart={handleTouchStart}
-            onTouchMove={handleTouchMove}
-            onTouchEnd={handleTouchEnd}
-          >
-            <button onClick={handlePrevious} className="text-white flex justify-center items-center h-full">
-              ⮜
-            </button>
-
-            <div className="flex-grow">
-              {renderTable(tablas[tablaIndex].titulo, tablas[tablaIndex].precios)}
+    <div className="p-4">
+      <h1 className="text-3xl font-extrabold text-center mb-6 text-white">Servicios de Peluquería</h1>
+      <Swiper
+        spaceBetween={50}
+        slidesPerView={1} // Cambiar según el número de tablas visibles
+        pagination={{ clickable: true }} // Habilita la paginación
+        loop={true} // Permite el bucle infinito
+        className="mySwiper"
+      >
+        {servicios.map((servicio, index) => (
+          <SwiperSlide key={index}>
+            <div className="overflow-x-auto bg-zinc-800 border rounded-lg mb-4">
+              <h2 className="text-xl font-bold text-white text-center p-4">{servicio.nombre}</h2>
+              <table className="min-w-full">
+                <thead>
+                  <tr className="text-white">
+                    <th className="py-3 px-4 border-b text-left">Subservicio</th>
+                    <th className="py-3 px-4 border-b text-left">Precio</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {servicio.subServicios.map((subServicio, subIndex) => (
+                    <tr
+                      key={subIndex}
+                      className={`hover:bg-gray-700 relative ${hoveredRowIndex === subIndex ? 'bg-gray-600' : ''}`}
+                      onMouseEnter={() => setHoveredRowIndex(subIndex)}
+                      onMouseLeave={() => setHoveredRowIndex(null)}
+                    >
+                      <td className="py-2 px-4 border-b text-white">{subServicio.nombre}</td>
+                      <td className="py-2 px-4 border-b text-white flex justify-between items-center">
+                        {subServicio.precio}
+                        {hoveredRowIndex === subIndex && (
+                          <button className="ml-4 bg-blue-500 text-white px-2 py-1 rounded hover:bg-blue-600">
+                            Editar
+                          </button>
+                        )}
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
             </div>
-
-            <button onClick={handleNext} className="text-white flex justify-center items-center h-full">
-              ⮞
-            </button>
-          </div>
-        </>
-      )}
+          </SwiperSlide>
+        ))}
+      </Swiper>
     </div>
   );
 };
 
-export default AdminPreciosTable;
+export default ServiciosTable;

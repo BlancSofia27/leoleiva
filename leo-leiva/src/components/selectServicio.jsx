@@ -1,16 +1,16 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import AOS from 'aos';
-import 'aos/dist/aos.css'; // Importa el CSS de AOS
+import 'aos/dist/aos.css';
 import coloracion from '../assets/carito.jpg';
 import belleza from '../assets/cande.jpg';
 import corte from '../assets/agos.jpg';
-import SelectHorario from './SelectHorario'; // Asegúrate de importar tu componente SelectHorario
 
-const SelectServicio = ({ onTotalChange, onServicioChange }) => { // Recibe las funciones como props
+const SelectServicio = ({ onTotalChange, onServiciosChange }) => {
   const [servicioSeleccionado, setServicioSeleccionado] = useState(null);
-  const [subServicioSeleccionado, setSubServicioSeleccionado] = useState(null); // Estado para el subservicio seleccionado
-  const [precioTotal, setPrecioTotal] = useState(0); // Estado para el precio total
-
+  const [subServicioSeleccionado, setSubServicioSeleccionado] = useState(null);
+  const [subServiciosSeleccionados, setSubServiciosSeleccionados] = useState([]); // Array de servicios seleccionados
+  const [total, setTotal] = useState(0); // State to hold the total
+  
   const servicios = [
     { 
       nombre: 'Coloración', 
@@ -56,32 +56,58 @@ const SelectServicio = ({ onTotalChange, onServicioChange }) => { // Recibe las 
   ];
 
   useEffect(() => {
-    AOS.init({ duration: 800 }); // Inicializa AOS con una duración de animación
+    AOS.init({ duration: 800 });
   }, []);
 
   const handleServicioClick = (servicio) => {
     setServicioSeleccionado(servicio);
-    setSubServicioSeleccionado(null); // Resetear subservicio al seleccionar un nuevo servicio
-    setPrecioTotal(0); // Resetear el precio total
   };
 
   const handleSubServicioClick = (subServicio) => {
-    setSubServicioSeleccionado(subServicio);
-    setPrecioTotal(subServicio.valor); // Actualiza el precio total
-    onTotalChange(subServicio.valor); // Envía el precio total al componente padre
-    onServicioChange(subServicio); // Envía el subservicio seleccionado al componente padre
+    setSubServicioSeleccionado(subServicio.nombre);
+
+    // Actualizamos el array de servicios seleccionados con solo el nombre
+    const nuevosServicios = [
+      ...subServiciosSeleccionados, 
+      subServicio.nombre
+    ];
+    setSubServiciosSeleccionados(nuevosServicios);
+
+    // Actualizamos el total sumando el valor del nuevo subservicio
+    const nuevoTotal = total + subServicio.valor;
+    setTotal(nuevoTotal);
+
+    // Comunicamos los cambios al componente padre
+    onTotalChange(nuevoTotal);
+    console.log(nuevosServicios)
+    onServiciosChange(nuevosServicios);
+  };
+
+  const handleEliminarServicio = (index) => {
+    const nuevosServicios = subServiciosSeleccionados.filter((_, i) => i !== index);
+    setSubServiciosSeleccionados(nuevosServicios);
+
+    // Recalcular el total eliminando el valor del subservicio eliminado
+    const subServicioEliminado = subServiciosSeleccionados[index];
+    const servicioData = servicios
+      .flatMap(s => s.subServicios)
+      .find(sub => sub.nombre === subServicioEliminado);
+    const nuevoTotal = total - (servicioData ? servicioData.valor : 0);
+    setTotal(nuevoTotal);
+
+    // Comunicamos los cambios al componente padre
+    onTotalChange(nuevoTotal);
+    onServiciosChange(nuevosServicios);
   };
 
   const handleVolver = () => {
     setServicioSeleccionado(null);
     setSubServicioSeleccionado(null);
-    setPrecioTotal(0);
-    onTotalChange(0); // Enviar 0 al componente padre al volver
   };
 
   return (
     <div className="mb-4 xl:w-[500px] lg:w-[500px]">
-      {subServicioSeleccionado ? ( // Si hay un subservicio seleccionado
+      {subServicioSeleccionado ? (
         <div className="flex flex-col items-center">
           <button 
             onClick={handleVolver} 
@@ -89,10 +115,9 @@ const SelectServicio = ({ onTotalChange, onServicioChange }) => { // Recibe las 
           >
             Volver a Servicios
           </button>
-          <h3 className="text-white mb-2">{subServicioSeleccionado.nombre}</h3> {/* Mostrar solo el subservicio seleccionado */}
-          <SelectHorario precioTotal={precioTotal} /> {/* Mostrar el componente SelectHorario aquí */}
+          
         </div>
-      ) : servicioSeleccionado ? ( // Si hay un servicio seleccionado
+      ) : servicioSeleccionado ? (
         <div className="flex flex-col items-center">
           <h3 className="text-white mb-2">Subservicios de {servicioSeleccionado}</h3>
           <div className="grid grid-cols-1 gap-4">
@@ -103,7 +128,7 @@ const SelectServicio = ({ onTotalChange, onServicioChange }) => { // Recibe las 
                   key={subServicio.nombre}
                   className="p-4 border rounded bg-zinc-700 text-white flex items-center cursor-pointer"
                   data-aos="fade-up" 
-                  onClick={() => handleSubServicioClick(subServicio)} // Al seleccionar un subservicio
+                  onClick={() => handleSubServicioClick(subServicio)}
                 >
                   <div>
                     <h4 className="text-lg font-bold">{subServicio.nombre}</h4>
@@ -113,14 +138,14 @@ const SelectServicio = ({ onTotalChange, onServicioChange }) => { // Recibe las 
             ))}
           </div>
         </div>
-      ) : ( // Si no hay un servicio seleccionado
+      ) : (
         <div className="flex flex-wrap gap-4 justify-center">
           {servicios.map((servicio) => (
             <button
               key={servicio.nombre}
               className={`border rounded w-[300px] h-[300px] flex flex-col items-center text-white
                           ${servicioSeleccionado === servicio.nombre ? 'bg-blue-500' : 'bg-zinc-800'}`}
-              onClick={() => handleServicioClick(servicio.nombre)} // Al seleccionar un servicio
+              onClick={() => handleServicioClick(servicio.nombre)}
               data-aos="fade-up"
             >
               <div className="relative w-full h-full"> 
@@ -137,6 +162,38 @@ const SelectServicio = ({ onTotalChange, onServicioChange }) => { // Recibe las 
           ))}
         </div>
       )}
+
+      {/* Tabla de servicios seleccionados */}
+      <div className="mt-6 w-full">
+        <h3 className="text-white text-lg font-semibold mb-4 text-center">Servicios Seleccionados:</h3>
+        <table className="table-auto w-full text-white">
+          <thead>
+            <tr>
+              <th className="text-left p-3">Subservicio</th>
+              <th></th>
+            </tr>
+          </thead>
+          <tbody>
+            {subServiciosSeleccionados.map((servicio, index) => (
+              <tr key={index}>
+                <td className='border-b p-3'>{servicio}</td>
+                <td>
+                  <button
+                    onClick={() => handleEliminarServicio(index)}
+                    className="text-white"
+                  >
+                    ⛌
+                  </button>
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+        {/* Total */}
+        <div className="mt-4 text-right text-white font-semibold">
+          Total: ${total.toLocaleString()}
+        </div>
+      </div>
     </div>
   );
 };
